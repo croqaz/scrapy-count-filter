@@ -1,1 +1,1 @@
-# from .middleware import CountFilterMiddleware  # noqa: F401
+from .middleware import CountFilterMiddleware  # noqa: F401
