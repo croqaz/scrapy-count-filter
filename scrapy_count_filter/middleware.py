@@ -45,14 +45,22 @@ class CountFilterMiddleware:
             raise CloseSpider('closespider_countlimit')
 
         if page_count and self.counter['page_count'] >= page_count:
-            logger.debug('Dropping link: %s', request.url, extra=extra)
+            logger.debug('Dropping link (pages %i>=%i): %s',
+                         self.counter['page_count'],
+                         page_count,
+                         request.url,
+                         extra=extra)
             self.crawler.stats.inc_value('page_count_filtering/dropped_requests')
-            raise IgnoreRequest
+            raise IgnoreRequest('page_count_filter')
 
         if item_count and self.counter['item_count'] >= item_count:
-            logger.debug('Dropping link: %s', request.url, extra=extra)
+            logger.debug('Dropping link (items %i>=%i): %s',
+                         self.counter['item_count'],
+                         item_count,
+                         request.url,
+                         extra=extra)
             self.crawler.stats.inc_value('item_count_filtering/dropped_requests')
-            raise IgnoreRequest
+            raise IgnoreRequest('item_count_filter')
 
 
 DOWNLOADER_MIDDLEWARES = {
