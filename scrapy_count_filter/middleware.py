@@ -65,6 +65,7 @@ class CountFilterMiddleware:
         # If all conditions are met, start ignoring requests
         if all(conditions):
             logger.debug('Dropping link (count overflow): %s', request.url, extra={'spider': spider})
+            self.crawler.stats.inc_value('count_filter/dropped_requests')
             raise IgnoreRequest('counters_overflow')
 
 
