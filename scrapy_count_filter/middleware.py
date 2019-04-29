@@ -19,6 +19,7 @@ class CountFilterMiddleware:
         self.counter = defaultdict(int)
         self.page_host_counter = defaultdict(int)
         self.item_host_counter = defaultdict(int)
+        self._close_spider = crawler.settings.getbool('COUNT_FILTER_CLOSE_SPIDER', False)
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -64,6 +65,11 @@ class CountFilterMiddleware:
 
         # If all conditions are met, start ignoring requests
         if all(conditions):
+            if self._close_spider:
+                logger.info('Spider shutdown (count overflow)', extra={'spider': spider})
+                self.crawler.engine.close_spider(spider, 'closespider_counters_overflow')
+                return
+
             logger.debug('Dropping link (count overflow): %s', request.url, extra={'spider': spider})
             self.crawler.stats.inc_value('count_filter/dropped_requests')
             raise IgnoreRequest('counters_overflow')
