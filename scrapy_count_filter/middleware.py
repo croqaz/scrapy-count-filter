@@ -2,26 +2,15 @@ import logging
 from collections import defaultdict
 
 from scrapy import signals
-from scrapy.exceptions import IgnoreRequest, CloseSpider
+from scrapy.exceptions import IgnoreRequest
 from scrapy.utils.httpobj import urlparse_cached
 
 logger = logging.getLogger(__name__)
 
 
-def bool_match(max_value: int, current_value: int) -> bool:
-    # Disabled match
-    if max_value <= 0:
-        return True
-    # Failed match
-    if current_value >= max_value:
-        return False
-    # Passed match
-    return True
-
-
 class CountFilterMiddleware:
     """
-    Spider Middleware that allows a Scrapy Spider to stop requests,
+    Downloader Middleware that allows a Scrapy Spider to stop requests,
     after a number of pages, or items scraped.
     """
 
@@ -55,59 +44,28 @@ class CountFilterMiddleware:
         if not count_limits:
             return
 
-        page_count = count_limits.get('page_count', 0)
-        item_count = count_limits.get('item_count', 0)
-        page_host_count = count_limits.get('page_host_count', 0)
-        item_host_count = count_limits.get('item_host_count', 0)
+        max_page_count: int = count_limits.get('page_count', 0)
+        max_item_count: int = count_limits.get('item_count', 0)
+        max_page_host_count: int = count_limits.get('page_host_count', 0)
+        max_item_host_count: int = count_limits.get('item_host_count', 0)
 
-        extra = {'spider': spider}
-        host = urlparse_cached(request).netloc.lower()
+        host: str = urlparse_cached(request).netloc.lower()
 
-        # If all of the conditions are met, force close the spider
-        if not bool_match(page_count, self.counter['page_count']) and \
-           not bool_match(item_count, self.counter['item_count']) and \
-           not bool_match(page_host_count, self.page_host_counter[host]) and \
-           not bool_match(item_host_count, self.item_host_counter[host]):
-            logger.info('All counters overflow, spider stopping!', extra=extra)
-            raise CloseSpider('closespider_counters_overflow')
+        conditions = []
 
-        url = request.url
-        # If any of the conditions are met, start ignoring requests
-        if not bool_match(page_count, self.counter['page_count']):
-            logger.debug('Dropping link (pages %i>=%i): %s',
-                         self.counter['page_count'],
-                         page_count,
-                         url,
-                         extra=extra)
-            self.crawler.stats.inc_value('dropped_requests/page_count_filtering')
-            raise IgnoreRequest('page_count_filter')
+        if max_page_count > 0:
+            conditions.append(self.counter['page_count'] > max_page_count)
+        if max_item_count > 0:
+            conditions.append(self.counter['item_count'] > max_item_count)
+        if max_page_host_count > 0:
+            conditions.append(self.page_host_counter[host] > max_page_host_count)
+        if max_item_host_count > 0:
+            conditions.append(self.item_host_counter[host] > max_item_host_count)
 
-        if not bool_match(item_count, self.counter['item_count']):
-            logger.debug('Dropping link (items %i>=%i): %s',
-                         self.counter['item_count'],
-                         item_count,
-                         url,
-                         extra=extra)
-            self.crawler.stats.inc_value('dropped_requests/item_count_filtering')
-            raise IgnoreRequest('item_count_filter')
-
-        if not bool_match(page_host_count, self.page_host_counter[host]):
-            logger.debug('Dropping link (pages %i>=%i): %s',
-                         self.page_host_counter[host],
-                         page_host_count,
-                         url,
-                         extra=extra)
-            self.crawler.stats.inc_value('dropped_requests/page_host_count_filtering')
-            raise IgnoreRequest('page_host_count_filter')
-
-        if not bool_match(item_host_count, self.item_host_counter[host]):
-            logger.debug('Dropping link (items %i>=%i): %s',
-                         self.item_host_counter[host],
-                         item_host_count,
-                         url,
-                         extra=extra)
-            self.crawler.stats.inc_value('dropped_requests/item_host_count_filtering')
-            raise IgnoreRequest('item_host_count_filter')
+        # If all conditions are met, start ignoring requests
+        if all(conditions):
+            logger.debug('Dropping link (count overflow): %s', request.url, extra={'spider': spider})
+            raise IgnoreRequest('counters_overflow')
 
 
 DOWNLOADER_MIDDLEWARES = {
