@@ -51,15 +51,17 @@ class CountFilterMiddleware:
     def process_request(self, request, spider):
         if not isinstance(getattr(spider, 'count_limits', False), dict):
             return
+        count_limits = spider.count_limits
+        if not count_limits:
+            return
 
-        page_count = spider.count_limits.get('page_count', 0)
-        item_count = spider.count_limits.get('item_count', 0)
-        page_host_count = spider.count_limits.get('page_host_count', 0)
-        item_host_count = spider.count_limits.get('item_host_count', 0)
+        page_count = count_limits.get('page_count', 0)
+        item_count = count_limits.get('item_count', 0)
+        page_host_count = count_limits.get('page_host_count', 0)
+        item_host_count = count_limits.get('item_host_count', 0)
 
         extra = {'spider': spider}
         host = urlparse_cached(request).netloc.lower()
-        url = request.url
 
         # If all of the conditions are met, force close the spider
         if not bool_match(page_count, self.counter['page_count']) and \
@@ -69,6 +71,7 @@ class CountFilterMiddleware:
             logger.info('All counters overflow, spider stopping!', extra=extra)
             raise CloseSpider('closespider_counters_overflow')
 
+        url = request.url
         # If any of the conditions are met, start ignoring requests
         if not bool_match(page_count, self.counter['page_count']):
             logger.debug('Dropping link (pages %i>=%i): %s',
