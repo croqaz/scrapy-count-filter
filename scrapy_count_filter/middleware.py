@@ -20,6 +20,7 @@ class CountFilterMiddleware:
         self.page_host_counter = defaultdict(int)
         self.item_host_counter = defaultdict(int)
         self._close_spider = crawler.settings.getbool('COUNT_FILTER_CLOSE_SPIDER', False)
+        self._ignore_hosts = crawler.settings.get('COUNT_FILTER_IGNORE_HOSTS', [])
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -31,12 +32,14 @@ class CountFilterMiddleware:
     def page_count(self, response, request, spider):
         self.counter['page_count'] += 1
         host = urlparse_cached(request).netloc.lower()
-        self.page_host_counter[host] += 1
+        if host not in self._ignore_hosts:
+            self.page_host_counter[host] += 1
 
     def item_scraped(self, item, spider, response):
         self.counter['item_count'] += 1
         host = urlparse_cached(response).netloc.lower()
-        self.item_host_counter[host] += 1
+        if host not in self._ignore_hosts:
+            self.item_host_counter[host] += 1
 
     def process_request(self, request, spider):
         if not isinstance(getattr(spider, 'count_limits', False), dict):
@@ -65,12 +68,13 @@ class CountFilterMiddleware:
 
         # If all conditions are met, start ignoring requests
         if all(conditions):
+            extra = {'spider': spider}
             if self._close_spider:
-                logger.info('Spider shutdown (count overflow)', extra={'spider': spider})
+                logger.info('Spider shutdown (count overflow)', extra=extra)
                 self.crawler.engine.close_spider(spider, 'closespider_counters_overflow')
                 return
 
-            logger.debug('Dropping link (count overflow): %s', request.url, extra={'spider': spider})
+            logger.debug('Dropping link (count overflow): %s', request.url, extra=extra)
             self.crawler.stats.inc_value('count_filter/dropped_requests')
             raise IgnoreRequest('counters_overflow')
 
