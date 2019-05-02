@@ -80,5 +80,6 @@ class CountFilterMiddleware:
 
 
 DOWNLOADER_MIDDLEWARES = {
-    'scrapy_count_filter.middleware.CountFilterMiddleware': 995,
+    # other middlewares ...
+    'scrapy_count_filter.middleware.CountFilterMiddleware': 995
 }

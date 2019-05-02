@@ -1,6 +1,8 @@
 # Scrapy-count-filter
 
-Downloader Middleware that allows a Scrapy Spider to stop requests after a number of pages, or items scraped.
+![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+
+Downloader Middleware that allows a Scrapy Spider to stop requests after a number of pages, or items are scraped.
 There is a similar functionality in the [CloseSpider extension](https://scrapy.readthedocs.io/en/latest/topics/extensions.html#module-scrapy.extensions.closespider) that stops spiders after a number of pages, items, or errors, but this middleware allows defining rules per job and per domain.
 
 
@@ -24,7 +26,7 @@ DOWNLOADER_MIDDLEWARES = {
 }
 ```
 
-Also, the limits must be defined either in the spider instance, in a `spider.count_limits` dict.
+Also, the counter limits must be defined in the spider instance, in a `spider.count_limits` dict.
 
 Example when both counters are active:
 
