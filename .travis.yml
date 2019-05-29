@@ -1,0 +1,12 @@
+language: python
+sudo: false
+
+python:
+  - 3.6
+
+install:
+  - pip install flake8 black
+
+script:
+  - flake8 scrapy_count_filter/ --statistics
+  - black -S -l 100 --target-version py36 scrapy_count_filter/
