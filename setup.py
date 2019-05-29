@@ -14,7 +14,7 @@ AUTHOR = 'Cristi Constantin'
 EMAIL = 'cristi.constantin@live.com'
 
 REQUIRES_PYTHON = '>=3.6.0'
-REQUIRED = ['scrapy>=1.5']
+REQUIRED = []
 
 here = os.path.abspath(os.path.dirname(__file__))
 about = {}
@@ -22,10 +22,15 @@ about = {}
 with open(os.path.join(here, NAME.replace('-', '_'), '__version__.py')) as f:
     exec(f.read(), about)
 
+with open(os.path.join(here, 'README.md')) as f:
+    long_description = f.read()
+
 setup(
     version=about['__version__'],
     name=NAME,
     description=DESCRIPTION,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     keywords=KEYWORDS,
     url=URL,
     author=AUTHOR,
@@ -37,7 +42,7 @@ setup(
     install_requires=REQUIRED,
     classifiers=[
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Natural Language :: English',
@@ -47,4 +52,6 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Topic :: Software Development',
-    ])
+        'Framework :: Scrapy',
+    ],
+)
