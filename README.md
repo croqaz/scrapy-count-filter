@@ -22,6 +22,7 @@ For the middlewares to be enabled, they must be added in the project `settings.p
 ```
 DOWNLOADER_MIDDLEWARES = {
     # maybe other Downloader Middlewares ...
+    # it's suggested to have the Count Filters after all the default middlewares
     'scrapy_count_filter.middleware.GlobalCountFilterMiddleware': 995,
     'scrapy_count_filter.middleware.HostsCountFilterMiddleware': 996,
 }
