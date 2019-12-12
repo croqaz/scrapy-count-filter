@@ -15,10 +15,11 @@ update:
 	${ENV}pip install -U -r test/requirements.txt
 
 lint:
-	${ENV}flake8 --count --statistics
+	${ENV}flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+	${ENV}flake8 . --count --statistics
 
 coverage:
-	${ENV}pytest --cov-report term --cov=scrapy_count_filter test/
+	${ENV}pytest --cov-report term --cov-report xml --cov=scrapy_count_filter test/
 
 test:
 	${ENV}pytest -ra -sv test/
