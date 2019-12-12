@@ -11,7 +11,7 @@ DESCRIPTION = 'Scrapy Middleware for limiting requests based on a counter.'
 KEYWORDS = 'scrapy counter filter'
 URL = 'https://github.com/croqaz/scrapy-count-filter'
 AUTHOR = 'Cristi Constantin'
-EMAIL = 'cristi.constantin@live.com'
+EMAIL = 'cristi.constantin@speedpost.net'
 
 REQUIRES_PYTHON = '>=3.6.0'
 REQUIRED = []

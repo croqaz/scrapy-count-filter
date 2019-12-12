@@ -14,7 +14,7 @@ There is a similar functionality in the [CloseSpider extension](https://scrapy.r
 This project requires [Python 3.6+](https://www.python.org/) and [pip](https://pip.pypa.io/). Using a [virtual environment](https://virtualenv.pypa.io/) is strongly encouraged.
 
 ```sh
-$ pip install git+https://github.com/croqaz/scrapy-count-filter
+$ pip install scrapy-count-filter
 ```
 
 
