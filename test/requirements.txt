@@ -1,3 +1,7 @@
 scrapy
+# Dev lint code
 flake8
-pytest
+# Dev test code
+pytest-cov
+# Dev coverage
+codecov
